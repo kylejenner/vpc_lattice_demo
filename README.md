@@ -1,9 +1,6 @@
 # vpc_lattice demo
 Note - published date 15/03/23. VPC Lattice is in preview and only accessed by request, the AWS account used for the request will be enabled for VPC Lattice. Region is in the demo is us-west-2 due to preview. 
 
-<details><summary>Prerequisites</summary>
-<p>
-
 
 # Step one - prerequisites 
 
@@ -15,18 +12,12 @@ Note - published date 15/03/23. VPC Lattice is in preview and only accessed by r
 - Kubectl (older version is the most stable) - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/darwin/amd64/kubectl
 - eskctl (latest)
 
-</p>
-</details>
-
-<details><summary>Step 2 - ECR Deployment</summary>
-<p>
-
 
 ## Step 2 - ECR deployment
 ECR is required to be deployed first ready for the infra deployment. The output file will display a unique URI for the created ECR that includes the target AWS account name. 
 
 Browse to /ecr_build
-- run - 
+- run  
 ```
 aws configure with IAM credentials
 ```
@@ -40,11 +31,6 @@ terraform apply
 
 example - image     = "123456789.dkr.ecr.us-west-2.amazonaws.com/repo:latest"
 
-</p>
-</details>
-
-<details><summary>Step 3 - Build Docker Image</summary>
-<p>
 
 ## Step 3 - Build Docker image
 A docker image is needed to be used with ECS, the image is a basic website written in node.js.
@@ -125,11 +111,6 @@ once logged in push the docker to ECR (change the account number)
 docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
 ```
 
-</p>
-</details>
-
-<details><summary>Step 4 - Build Main Infrastructure</summary>
-<p>
 
 ## Step Four - Build main infrastructure
 The next step is to deploy the main infrastructure.
@@ -140,11 +121,6 @@ terraform init
 terraform apply
 ```
 
-</p>
-</details>
-
-<details><summary>Step 5 - Test Access</summary>
-<p>
 
 ## Step 5 - Test access
 Once deployed there will be an EC2 instance in each Consumer VPC, they will have internet access via the Network VPC but no path between each other. Network path is blocked on the TGW between Consumer1, Consumer2 and Consumer3 VPCs. SSM agents are configured on the EC2 and can be used for connect to the local instances on private subnets. From here the access can be tested.
@@ -208,11 +184,6 @@ curl http://private-dns-eks:8080
 ```
 - CONNECTION "consumer3 app runnung on EKS"
 
-</p>
-</details>
-
-<details><summary>Step 6 - VPC Lattice Deployment</summary>
-<p>
 
 ## Step 6 - VPC Lattice deployment
 The first step is to deploy a new gateway type instead of a standard LoadBalance ingress resource. The API gateway for Amazon (ACK) is required to directly communicate with VPC Lattice. With this gateway in place new services created in EKS are also created in VPC Lattice
@@ -280,11 +251,6 @@ kubectl get httproute
 ```
 - VPC Lattice will now display a new service linked to the VPC with a new target group
 
-</p>
-</details>
-
-<details><summary>Step 7 - VPC Lattice Enrollment</summary>
-<p>
 
 ## Step 7 - VPC Lattice enrollment
 
@@ -321,6 +287,3 @@ open instance - consumer1-ec2-web
 curl http://service-dns from consumer1 instance
 ```
    - CONNECTION "consumer3 running on EKS"
-
-</p>
-</details>
