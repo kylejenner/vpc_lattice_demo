@@ -34,7 +34,7 @@ A docker image is needed to be used with ECS, the image is a basic website writt
 
 - browse to /ecs_app folder
 - run
-```
+```node.js
 npm init --y
 npm install express
 ```
@@ -109,8 +109,10 @@ docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
 The next step is to deploy the main infrastructure.
 
 - browse to root directory
-- terraform init
-- terraform apply
+```hcl
+terraform init
+terraform apply
+```
 
 ## Step Five - Test access
 Once deployed there will be an EC2 instance in each Consumer VPC, they will have internet access via the Network VPC but no path between each other. Network path is blocked on the TGW between Consumer1, Consumer2 and Consumer3 VPCs. SSM agents are configured on the EC2 and can be used for connect to the local instances on private subnets. From here the access can be tested.
