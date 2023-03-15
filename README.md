@@ -19,7 +19,7 @@ ECR is required to be deployed first ready for the infra deployment. The output 
 ```
 aws configure with IAM credentials
 ```
-``` 
+```hcl 
 terraform init
 terraform apply
 ```
@@ -34,14 +34,14 @@ A docker image is needed to be used with ECS, the image is a basic website writt
 
 - browse to /ecs_app folder
 - run
-```node.js
+```node
 npm init --y
 npm install express
 ```
 
 - this will create the files needed
 - to test the app locally
-```
+```node
 node server.js
 ``` 
 open a new terminal
