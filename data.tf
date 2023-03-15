@@ -1,11 +1,20 @@
 data "aws_ami" "ubuntu" {
-  owners      = ["099720109477"]
+  owners      = ["137112412989"]
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-*"]
+    values = ["amzn2-ami-kernel-5.10-hvm-*"]
+  }
+    filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
+
 
 data "aws_availability_zones" "azs" {
   provider = aws.network
@@ -63,12 +72,3 @@ data "aws_ami" "ecs" {
     values = ["hvm"]
   }
 }
-
-
-
-
-
-
-
-
-
