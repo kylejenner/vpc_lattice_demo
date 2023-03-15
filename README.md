@@ -137,7 +137,8 @@ The first step is to deploy a new gateway type instead of a standard LoadBalance
     - export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies \
        --query 'Policies[?PolicyName==`VPCLatticeControllerPolicy`].Arn' \
        --output text)
-    - eksctl create iamserviceaccount \
+    - '''
+      eksctl create iamserviceaccount \
        --cluster=consumer3-eks-cluster \
        --namespace=system \
        --name=gateway-api-controller \
@@ -145,13 +146,14 @@ The first step is to deploy a new gateway type instead of a standard LoadBalance
        --override-existing-serviceaccounts \
       --region us-west-2 \
       --approve
+      '''
 - deploy ACK controller into the cluster 
     - kubectl apply -f deploy-v0.0.3.yaml
     - kubectl get pods -A
-- deploy a gatway class 
+- deploy a gateway class 
     - kubectl apply -f gatewayclass.yaml
     -  kubectl get gatewayclass
-- deply gateway object that links the new gateway class to VPC Lattice
+- deploy gateway object that links the new gateway class to VPC Lattice
     - kubectl apply -f consumer3-svc-network.yaml
     - kubectl get consumer3-svc-network -o yaml
          - this should return ARN of Lattice service network
