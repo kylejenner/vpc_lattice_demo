@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: internal 
+    service.beta.kubernetes.io/aws-load-balancer-name : mynlb #User defined name given to AWS Network Load Balancer
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip #The Pod IPs should be used as the target IPs (rather than the node IPs as was the case with Network Load Balancer in the previous section)
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  namespace: default
+  labels:
+    app: frontend
+spec:
+  type: LoadBalancer #The type of service
+  ports:
+    - port: 8080 #The port which the service is running on
+      targetPort: 8080 #The port on the pod which is backing this service. If not specified, it is assumed to be the same as the service port.
+      name: http
+  selector:
+    app: consumer3-app #The service identifies all the pods which have this label and then automatically configures the IP addresses of those pods as endpoints of this service.

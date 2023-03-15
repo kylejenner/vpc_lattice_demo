@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer3-app
+  labels:
+    app: consumer3-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: consumer3-app
+  template:
+    metadata:
+      labels:
+        app: consumer3-app
+    spec:
+      containers:
+      - name: consumer3-app
+        image: 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo
+        env:
+        - name: PodName
+          value: "consumer3-app handler pod" 
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumer3-app
+spec:
+  selector:
+    app: consumer3-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

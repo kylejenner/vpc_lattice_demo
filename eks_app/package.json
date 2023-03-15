@@ -1,0 +1,15 @@
+{
+  "name": "docker_node_js_web_app",
+  "version": "1.0.0",
+  "description": "consumer3 Node.js app",
+  "author": "consumer3",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "keywords": [],
+  "license": "ISC"
+}
