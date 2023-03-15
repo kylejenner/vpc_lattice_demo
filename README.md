@@ -179,5 +179,5 @@ The first step is to deploy a new gateway type instead of a standard LoadBalance
     - curl http://service-dns from consumer2 instance
         - CONNECTION "consumer3 running on EKS"
     - open instance - consumer1-ec2-web
-    - curl http://service-dns from consumer2 instance
+    - curl http://service-dns from consumer1 instance
         - CONNECTION "consumer3 running on EKS"
