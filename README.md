@@ -15,9 +15,14 @@ Note - published date 15/03/23. VPC Lattice is in preview and only accessed by r
 ECR is required to be deployed first ready for the infra deployment. The output file will display a unique URI for the created ECR that includes the target AWS account name. 
 
 - Browse to /ecr_build
-- run - aws configure with IAM credentials
-- terraform init
-- terraform apply
+- run - 
+```
+aws configure with IAM credentials
+```
+``` 
+terraform init
+terraform apply
+```
 - copy account number out of the output text
 - add account number to line 35 in /ecs.tf
 - add account number to line 19 /eks/consumer3.yaml
@@ -29,46 +34,76 @@ A docker image is needed to be used with ECS, the image is a basic website writt
 
 - browse to /ecs_app folder
 - run
-    - npm init --y
-    - npm install express
+```
+npm init --y
+npm install express
+```
+
 - this will create the files needed
 - to test the app locally
-    - node server.js 
-    - open a new terminal
-        - curl http://localhost:8080
-        - this will return "consumer2 app running on ECS"
+```
+node server.js
+``` 
+open a new terminal
+```
+curl http://localhost:8080
+```
+- this will return "consumer2 app running on ECS"
 - run docker build command
-    - docker build . -t consumer2/app
-    - to test docker is running
-        - docker run -p 8080:8080 -d consumer2/app
-        - open a new terminal
-            - curl http://localhost:8080
-            - this will return "consumer2 app running on ECS"   
+```
+docker build . -t consumer2/app
+```
+- to test docker is running
+```
+docker run -p 8080:8080 -d consumer2/app
+- open a new terminal
+```
+curl http://localhost:8080
+- this will return "consumer2 app running on ECS"   
 - once complete logon to ECR - add the account number found in step 2
-    - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+```
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+```
 - once logged in push the docker to ECR (change the account number)
-    - docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo:latest
-
+```
+docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo:latest
+```
 - browse to /eks_app folder
 - run
-    - npm init --y
-    - npm install express
+```
+npm init --y
+npm install express
+```
 - this will create the files needed
-    - node server.js 
-    - open a new terminal
-        - curl http://localhost:8080
-        - this will return "consumer3 app running on EKS"
+```
+node server.js 
+```
+open a new terminal
+```
+curl http://localhost:8080
+```
+- this will return "consumer3 app running on EKS"
 - run docker build command
-    - docker build . -t consumer3/app
-    - to test docker is running
-        - docker run -p 8080:8080 -d consumer3/app
-        - open a new terminal
-            - curl http://localhost:8080
-            - this will return "consumer3 app running on EKS" 
+```
+docker build . -t consumer3/app
+```
+- to test docker is running
+```
+docker run -p 8080:8080 -d consumer3/app
+```
+- open a new terminal
+```
+curl http://localhost:8080
+```
+- this will return "consumer3 app running on EKS" 
 - once complete logon to ECR - add the account number found in step 2
-    - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+```
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+```
 - once logged in push the docker to ECR (change the account number)
-    - docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
+```
+docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
+```
 
 ## Step Four - Build main infrastructure
 The next step is to deploy the main infrastructure.
