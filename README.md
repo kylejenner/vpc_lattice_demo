@@ -144,9 +144,9 @@ To test ECS
  - connect - SSM console
  - record private ALB DNS name (consumer2-web-alb) 
  - run
-"
+```
 curl http://local-dns-name:8080
-"
+```
 - CONNECTION "consumer2 app running on ECS"
 
 To test EKS
