@@ -200,30 +200,19 @@ eksctl utils associate-iam-oidc-provider --cluster consumer3-eks-cluster --appro
 EKS cluster requires IAM policy assigned to get access to VPC Lattice
 ```
 aws iam create-policy \
-  --policy-name VPCLatticeControllerPolicy \
+  --policy-name VPCLatticeControllerIAMPolicy \
   --policy-document file://lattice-inline.json
 ```
+- Record the ARN for the new policy to be used for the following steps 
 deply a new namespce called "system"
 ```
 kubectl apply -f namesystem.yaml
 ```
 create a new service account for the cluster to use the new IAM policy
+- add the ARN previously recorded
 ```
-export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies \
-  --query 'Policies[?PolicyName==`VPCLatticeControllerPolicy`].Arn' \
-  --output text)
+eksctl create iamserviceaccount --cluster=consumer3-eks-cluster --namespace=system --name=gateway-api-controller --attach-policy-arn=arn:aws:iam::123456789:policy/VPCLatticeControllerIAMPolicy --override-existing-serviceaccounts --region us-west-2 --approve
 ```
-```
-eksctl create iamserviceaccount \
-  --cluster=consumer3-eks-cluster \
-  --namespace=system \
-  --name=gateway-api-controller \
-  --attach-policy-arn=$VPCLatticeControllerIAMPolicyArn \
-  --override-existing-serviceaccounts \
-  --region us-west-2 \
-  --approve
-```
-
 deploy ACK controller into the cluster 
 ```
 kubectl apply -f deploy-v0.0.3.yaml
