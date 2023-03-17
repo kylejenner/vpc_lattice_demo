@@ -78,6 +78,12 @@ resource "aws_security_group" "consumer3-ec2-web-sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    prefix_list_ids = ["pl-0721453c7ac4ec009"]
+  }
   egress {
     from_port   = 0
     to_port     = 0
