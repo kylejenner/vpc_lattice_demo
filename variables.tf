@@ -86,7 +86,7 @@ variable "cluster_name" {
   default = "consumer3-eks-cluster"
 }
 variable "cluster_version" {
-  default = "1.25"
+  default = "1.27"
 }
 
 ### EC2 variables

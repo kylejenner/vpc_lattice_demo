@@ -55,11 +55,11 @@ curl http://localhost:8080
 
 run docker build command
 ```
-docker build . -t consumer2/app
+docker build . -t consumer2-repo
 ```
 to test docker is running
 ```
-docker run -p 8080:8080 -d consumer2/app
+docker run -p 8080:8080 -d consumer2-repo
 ```
 open a new terminal
 ```
@@ -91,11 +91,11 @@ curl http://localhost:8080
 - this will return "consumer3 app running on EKS"
 run docker build command
 ```
-docker build . -t consumer3/app
+docker build . -t consumer3-repo
 ```
 - to test docker is running
 ```
-docker run -p 8080:8080 -d consumer3/app
+docker run -p 8080:8080 -d consumer3-repo
 ```
 - open a new terminal
 ```
@@ -189,13 +189,19 @@ curl http://private-dns-eks:8080
 The first step is to deploy a new gateway type instead of a standard LoadBalance ingress resource. The API gateway for Amazon (ACK) is required to directly communicate with VPC Lattice. With this gateway in place new services created in EKS are also created in VPC Lattice
 
 browse to /eks_app folder
-- remove frontend service 
+- remove frontend service
+- make sure consumer3 deployment is still running (see base infrastructure) 
 ```
 kubectl remove service frontend
 ```
+Export the cluster name
+```
+export AWS_REGION=us-west-2
+export CLUSTER_NAME=consumer3-eks-cluster
+```
 cluster requires the IAM OIDC provider to be configured for the cluster
 ```
-eksctl utils associate-iam-oidc-provider --cluster consumer3-eks-cluster --approve
+eksctl utils associate-iam-oidc-provider --cluster CLUSTER_NAME --approve
 ```
 EKS cluster requires IAM policy assigned to get access to VPC Lattice
 ```
@@ -203,15 +209,24 @@ aws iam create-policy \
   --policy-name VPCLatticeControllerIAMPolicy \
   --policy-document file://lattice-inline.json
 ```
-- Record the ARN for the new policy to be used for the following steps 
-deply a new namespce called "system"
+Apply namesystem
 ```
 kubectl apply -f namesystem.yaml
 ```
-create a new service account for the cluster to use the new IAM policy
-- add the ARN previously recorded
+create a new service account for the cluster to use the new IAM policy, this is key step enabling a service account with the correct VPC Lattice permissions. First export the ARN from the previously created IAM policy.
 ```
-eksctl create iamserviceaccount --cluster=consumer3-eks-cluster --namespace=system --name=gateway-api-controller --attach-policy-arn=arn:aws:iam::123456789:policy/VPCLatticeControllerIAMPolicy --override-existing-serviceaccounts --region us-west-2 --approve
+export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies --query 'Policies[?PolicyName==`VPCLatticeControllerIAMPolicy`].Arn' --output text)
+```
+Now create the service account with the correct IAM policy assigned.
+```
+eksctl create iamserviceaccount \
+   --cluster=$CLUSTER_NAME \
+   --namespace=system \
+   --name=gateway-api-controller \
+   --attach-policy-arn=$VPCLatticeControllerIAMPolicyArn \
+   --override-existing-serviceaccounts \
+   --region $AWS_REGION \
+   --approve
 ```
 deploy ACK controller into the cluster 
 ```
@@ -231,7 +246,7 @@ kubectl get consumer3-svc-network -o yaml
 this should return ARN of Lattice service network
    - troubleshoot "waiting for controller" - ```kubectl logs -n system api-gateway-name```
    - the logs will display any failures, look for IAM permissions if the service account has not applied correctly
-   -  Apply Lattice permissions to EKS node assumed role to apply then outside of the service account
+   - Ensure the service account is setup correctly with the correct assigned IAM policy 
 
 deploy HTTP route resource to apply the listeners (this can take up to 5 minutes)
 ```
@@ -259,19 +274,42 @@ curl http://service-dns
 ```
 - consumer2 instance times out
 
-open VPC Lattice console again > Service and add consumer2 VPC association to Lattice service
-- security group is required during the association, this is required to allow traffic from the Lattice fleet
-- add security group "consumer1-ec2-web" for consumer1 VPC
-- add security group "consumer2-ec2-web" for consumer2 VPC
-    - The rule required on the security group is - Allow all from pl-0721453c7ac4ec009
+To setup the network connection we must connect the VPCs to the VPC Lattice Service which we do by adding VPC assocations. The service was created by the ACK gateway, other VPCs must be associated with the Service Network. 
 
-open instance - consumer2-ec2-web
+To connect consumer2 VPC first export the VPC ID and security group ID - note this secuirty group allows network traffic from the VPC Lattice service previously setup in the base infrastructure Terraform deployment.
+```
+CONSUMER2=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=consumer2-vpc --query 'Vpcs[].VpcId'--output text)
+CONSUMER2SG=$(aws ec2 describe-security-groups --filter Name=group-name,Values=consumer2-ec2-web-sg --query 'SecurityGroups[*].[GroupId]' --output text)
+SERVICENETWORKID=$(aws vpc-lattice list-service-networks --query 'items[*].id' --output text)
+```
+Once exported run the followinf AWS CLI command
+```
+aws vpc-lattice create-service-network-vpc-association \
+    --vpc-identifier $CONSUMER2 \
+    --service-network-identifier $SERVICENETWORKID \
+    --security-group-ids $CONSUMER2SG
+```
+Now to test
+- open instance - consumer2-ec2-web
 ```
 curl http://service-dns from consumer2 instance
 ```
   - CONNECTION "consumer3 running on EKS"
 
-open instance - consumer1-ec2-web
+Consumer1 VPC is not yet connected, to connect this VPC we do the same export and AWS CLI command.
+```
+CONSUMER1=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=consumer1-vpc --query 'Vpcs[].VpcId' --output text)
+CONSUMER1SG=$(aws ec2 describe-security-groups --filter Name=group-name,Values=consumer1-ec2-web-sg --query 'SecurityGroups[*].[GroupId]' --output text)
+SERVICENETWORKID=$(aws vpc-lattice list-service-networks --query 'items[*].id' --output text)
+```
+```
+aws vpc-lattice create-service-network-vpc-association \
+    --vpc-identifier $CONSUMER1 \
+    --service-network-identifier $SERVICENETWORKID \
+    --security-group-ids $CONSUMER1SG
+```
+Now to test
+- open instance - consumer1-ec2-web
 ```
 curl http://service-dns from consumer1 instance
 ```

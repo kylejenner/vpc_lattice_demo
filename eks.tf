@@ -17,14 +17,13 @@ resource "aws_eks_node_group" "private-nodes" {
   version         = var.cluster_version
   node_group_name = "${var.environment-consumer3}-eks-nodes"
   node_role_arn   = aws_iam_role.consumer3-nodes.arn
-
   subnet_ids = ["${aws_subnet.consumer3-subnet-priv[0].id}", "${aws_subnet.consumer3-subnet-priv[1].id}"]
 
   capacity_type  = "ON_DEMAND"
   instance_types = ["t3.small"]
 
   scaling_config {
-    desired_size = 1
+    desired_size = 2
     max_size     = 5
     min_size     = 0
   }
@@ -36,7 +35,9 @@ resource "aws_eks_node_group" "private-nodes" {
   labels = {
     role = "general"
   }
-
+ tags = {
+   Name = "${var.environment-consumer3}-eks-node"
+ }
   depends_on = [
     aws_eks_cluster.cluster,
     aws_iam_role_policy_attachment.amazon-eks-worker-node-policy,

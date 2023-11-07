@@ -32,7 +32,7 @@ network_mode    = "awsvpc"
   container_definitions = jsonencode([
     {
       name      = "consumer2-app"
-      image     = "123456789.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo"
+      image     = "378810859022.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo"
       cpu       = 10
       memory    = 512
       essential = true

@@ -35,8 +35,8 @@ resource "aws_subnet" "network-subnet-priv" {
    Name = "${var.environment-network}-subnet-priv-${count.index + 1}"
  }
 }
-resource "aws_eip" "network-nat-eip" {
-  vpc = true
+ resource "aws_eip" "network-nat-eip" {
+ domain = "vpc"
 }
 resource "aws_nat_gateway" "network-natgw" {
   allocation_id = aws_eip.network-nat-eip.id
