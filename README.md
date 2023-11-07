@@ -1,5 +1,5 @@
 # vpc_lattice demo
-Note - published date 15/03/23. VPC Lattice is in preview and only accessed by request, the AWS account used for the request will be enabled for VPC Lattice. Region is in the demo is us-west-2 due to preview. 
+Note - published date 15/03/23. VPC Lattice was in preview at time of publication. Region is in the demo is us-west-2. Service is now GA meaning other regions can be used. Demo has been tested since service has gone GA.
 
 
 # Step one - prerequisites 
@@ -8,7 +8,6 @@ Note - published date 15/03/23. VPC Lattice is in preview and only accessed by r
 - IAM user with permissions to deploy EC2, VPC, ECS, EKS, ECR resources
 - Terraform (latest)
 - Docker desktop
-- Gitlab access via - (https://w.amazon.com/bin/view/AWS/Teams/WWPS/TSD/GitLab#HSettingupgitAccess)
 - Kubectl (older version is the most stable) - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/darwin/amd64/kubectl
 - eskctl (latest)
 
