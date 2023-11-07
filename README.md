@@ -7,7 +7,6 @@ Note - published date 15/03/23. VPC Lattice is in preview and only accessed by r
 - AWS CLI
 - IAM user with permissions to deploy EC2, VPC, ECS, EKS, ECR resources
 - Terraform (latest)
-- Clone repo to local directory (SSH access using Midway - https://w.amazon.com/bin/view/AWS/Teams/WWPS/TSD/GitLab#HSettingupgitAccess)
 - Docker desktop
 - Kubectl (older version is the most stable) - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/darwin/amd64/kubectl
 - eskctl (latest)
@@ -25,9 +24,10 @@ aws configure with IAM credentials
 terraform init
 terraform apply
 ```
+
 - copy account number out of the output text
 - add account number to line 35 in /ecs.tf
-- add account number to line 19 /eks/consumer3.yaml
+- add account number to line 19 /eks_app/consumer3.yaml
 
 example - image     = "123456789.dkr.ecr.us-west-2.amazonaws.com/repo:latest"
 
@@ -68,11 +68,13 @@ curl http://localhost:8080
 - this will return "consumer2 app running on ECS"   
 once complete logon to ECR - add the account number found in step 2
 ```
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-west-2.amazonaws.com
 ```
-once logged in push the docker to ECR (change the account number)
+once logged in push the docker to ECR
 ```
-docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo:latest
+docker push $ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/consumer2-repo:latest
 ```
 browse to /eks_app folder
 - run
@@ -104,16 +106,22 @@ curl http://localhost:8080
 - this will return "consumer3 app running on EKS" 
 once complete logon to ECR - add the account number found in step 2
 ```
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-west-2.amazonaws.com
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-west-2.amazonaws.com
 ```
 once logged in push the docker to ECR (change the account number)
 ```
-docker push 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
+docker push $ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo:latest
 ```
 
 
 ## Step Four - Build main infrastructure
-The next step is to deploy the main infrastructure.
+The next step is to deploy the main infrastructure. This base infra will deploy 3 seperate (consumer) VPCs with a centralised Transit Gateway. The purpose is to show a Transit Gateway in use with each VPC attached, however the Transit Gateway is only used to centralised egress via a NAT Gateway running in a 4th VPC used for only network resources. Traffic between each consumer VPC will be blocked at the network level using routing black holes configured on the Transit Gateway.
+
+The following tests will demonstrate that the network paths are blocked between VPCs. We will then enabled VPC Lattice to provide app-to-app communication without a traditional network path.
+
+![alt text](/pic/base-infra.jpeg)
 
 browse to root directory
 ```hcl

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: consumer3-app
-        image: 378810859022.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo
+        image: 123456789.dkr.ecr.us-west-2.amazonaws.com/consumer3-repo
         env:
         - name: PodName
           value: "consumer3-app handler pod" 
