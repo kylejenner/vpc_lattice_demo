@@ -8,6 +8,7 @@ Note - published date 15/03/23. VPC Lattice is in preview and only accessed by r
 - IAM user with permissions to deploy EC2, VPC, ECS, EKS, ECR resources
 - Terraform (latest)
 - Docker desktop
+- Gitlab access via - (https://w.amazon.com/bin/view/AWS/Teams/WWPS/TSD/GitLab#HSettingupgitAccess)
 - Kubectl (older version is the most stable) - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/darwin/amd64/kubectl
 - eskctl (latest)
 
@@ -28,8 +29,6 @@ terraform apply
 - copy account number out of the output text
 - add account number to line 35 in /ecs.tf
 - add account number to line 19 /eks_app/consumer3.yaml
-
-example - image     = "123456789.dkr.ecr.us-west-2.amazonaws.com/repo:latest"
 
 
 ## Step 3 - Build Docker image
@@ -66,7 +65,7 @@ open a new terminal
 curl http://localhost:8080
 ```
 - this will return "consumer2 app running on ECS"   
-once complete logon to ECR - add the account number found in step 2
+once complete logon to ECR
 ```
 ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 
@@ -104,7 +103,7 @@ docker run -p 8080:8080 -d consumer3-repo
 curl http://localhost:8080
 ```
 - this will return "consumer3 app running on EKS" 
-once complete logon to ECR - add the account number found in step 2
+once complete logon to ECR
 ```
 ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 
