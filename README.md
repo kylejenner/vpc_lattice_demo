@@ -205,7 +205,16 @@ Export the cluster name
 export AWS_REGION=us-west-2
 export CLUSTER_NAME=consumer3-eks-cluster
 ```
-cluster requires the IAM OIDC provider to be configured for the cluster
+An additional security group rule must be configured on the EKS node group to allow traffic from the VPC Lattice fleet. No traffic will be able to reach EKS from VPC Lattice without this step. First export the varibles for the existing security group applied to the cluster and the VPC Lattice prefix.
+```
+CLUSTER_SG=$(aws eks describe-cluster --name $CLUSTER_NAME --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')
+PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
+```
+Now add the additonal rule to the security group
+```
+aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID}}],IpProtocol=-1"
+```
+The cluster requires the IAM OIDC provider to be configured for the cluster
 ```
 eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 ```
@@ -219,7 +228,7 @@ Apply namesystem
 ```
 kubectl apply -f deploy-namesystem.yaml
 ```
-create a new service account for the cluster to use the new IAM policy, this is key step enabling a service account with the correct VPC Lattice permissions. First export the ARN from the previously created IAM policy.
+Create a new service account for the cluster to use the new IAM policy, this is key step enabling a service account with the correct VPC Lattice permissions. First export the ARN from the previously created IAM policy.
 ```
 export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies --query 'Policies[?PolicyName==`VPCLatticeControllerIAMPolicy`].Arn' --output text)
 ```
