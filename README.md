@@ -293,7 +293,7 @@ To setup the network connection we must connect the VPCs to the VPC Lattice Serv
 
 To connect consumer2 VPC first export the VPC ID and security group ID - note this secuirty group allows network traffic from the VPC Lattice service previously setup in the base infrastructure Terraform deployment.
 ```
-CONSUMER2=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=consumer2-vpc --query 'Vpcs[].VpcId'--output text)
+CONSUMER2=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=consumer2-vpc --query 'Vpcs[].VpcId' --output text)
 CONSUMER2SG=$(aws ec2 describe-security-groups --filter Name=group-name,Values=consumer2-ec2-web-sg --query 'SecurityGroups[*].[GroupId]' --output text)
 SERVICENETWORKID=$(aws vpc-lattice list-service-networks --query 'items[*].id' --output text)
 ```
