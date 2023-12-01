@@ -207,7 +207,7 @@ export CLUSTER_NAME=consumer3-eks-cluster
 ```
 cluster requires the IAM OIDC provider to be configured for the cluster
 ```
-eksctl utils associate-iam-oidc-provider --cluster CLUSTER_NAME --approve
+eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 ```
 EKS cluster requires IAM policy assigned to get access to VPC Lattice
 ```
@@ -217,7 +217,7 @@ aws iam create-policy \
 ```
 Apply namesystem
 ```
-kubectl apply -f namesystem.yaml
+kubectl apply -f deploy-namesystem.yaml
 ```
 create a new service account for the cluster to use the new IAM policy, this is key step enabling a service account with the correct VPC Lattice permissions. First export the ARN from the previously created IAM policy.
 ```
@@ -247,7 +247,7 @@ kubectl get gatewayclass
 deploy gateway object that links the new gateway class to VPC Lattice
 ```
 kubectl apply -f consumer3-svc-network.yaml
-kubectl get consumer3-svc-network -o yaml
+kubectl get gateway consumer3-svc-network -o yaml
 ```
 this should return ARN of Lattice service network
    - troubleshoot "waiting for controller" - ```kubectl logs -n system api-gateway-name```
